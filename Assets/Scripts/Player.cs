@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Player : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject Bullet;
     [SerializeField] LayerMask GroundLayer;
     [SerializeField] Transform BulletTransform;
+    [SerializeField] UnityEvent onGameOver;
     Animator animator;
     Rigidbody2D body;
     BoxCollider2D boxCollider2D;
@@ -57,7 +59,7 @@ public class Player : MonoBehaviour
         if (animator.GetBool("WithWeapon"))
         {
             Instantiate(Bullet, BulletTransform.position, transform.rotation);
-            body.AddForceX(-transform.right.x * Speed * .5f, ForceMode2D.Impulse);
+            body.AddForceX(-transform.right.x * 2f, ForceMode2D.Impulse);
             animator.SetTrigger("Shoot");
             shooting = true;
         }
@@ -75,7 +77,8 @@ public class Player : MonoBehaviour
         other.gameObject.TryGetComponent(out Insect insect);
         if (insect)
         {
-
+            Time.timeScale = 0;
+            onGameOver.Invoke();
         }
     }
 
