@@ -4,15 +4,18 @@ public class Insect : MonoBehaviour
 {
     [SerializeField] float Speed = 0;
     [SerializeField] LayerMask GroundLayer;
+    [SerializeField] float Range;
+    Vector2 center;
     Rigidbody2D body;
     BoxCollider2D boxCollider2D;
-    float lastTime = 0;
     bool dead = false;
+    float angle = 0;
     // Start is called before the first frame update
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+        center = transform.position;
     }
 
     // Update is called once per frame
@@ -20,17 +23,11 @@ public class Insect : MonoBehaviour
     {
         if (!dead)
         {
-            if (Time.time - lastTime >= 1)
-            {
-                Vector2 eulerAngles = transform.rotation.eulerAngles;
-                eulerAngles.y -= 180;
-                transform.eulerAngles = eulerAngles;
-                lastTime = Time.time;
-            }
-            else
-            {
-                transform.position += Speed * Time.deltaTime * transform.right;
-            }
+            Vector2 next = center + new Vector2(Mathf.Cos(angle) * Range, 0);
+            float direction = next.x - transform.position.x;
+            transform.eulerAngles = new Vector3(0, direction > 0 ? 0 : 180, 0);
+            transform.position = next;
+            angle += Time.deltaTime * Speed;
         }
     }
 
@@ -43,5 +40,16 @@ public class Insect : MonoBehaviour
         boxCollider2D.enabled = false;
         transform.eulerAngles = eulerAngles;
         Destroy(gameObject, 2f);
+    }
+
+    void OnValidate()
+    {
+        center = transform.position;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(center + new Vector2(Range, 0), 0.5f);
+        Gizmos.DrawWireSphere(center + new Vector2(-Range, 0), 0.5f);
     }
 }
